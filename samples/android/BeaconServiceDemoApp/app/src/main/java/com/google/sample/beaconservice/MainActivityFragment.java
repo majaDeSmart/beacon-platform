@@ -354,9 +354,9 @@ public class MainActivityFragment extends Fragment {
               }).show();
           return;
         }
-        if (beacon.status.equals(Beacon.STATUS_UNSPECIFIED)) {
-          return;
-        }
+//        if (beacon.status.equals(Beacon.STATUS_UNSPECIFIED)) {
+//          return;
+//        }
         Bundle bundle = new Bundle();
         bundle.putString("accountName", accountNameView.getText().toString());
         bundle.putParcelable("beacon", arrayAdapter.getItem(position));

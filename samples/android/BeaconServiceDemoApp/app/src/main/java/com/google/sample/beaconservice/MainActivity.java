@@ -15,9 +15,21 @@
 package com.google.sample.beaconservice;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
-public class MainActivity extends Activity {
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.nearby.Nearby;
+import com.google.android.gms.nearby.messages.Message;
+import com.google.android.gms.nearby.messages.MessageListener;
+import com.google.android.gms.nearby.messages.Strategy;
+
+public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+
+    private static final String TAG = "BeaconSampleAPP";
+    private GoogleApiClient mGoogleApiClient;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +38,51 @@ public class MainActivity extends Activity {
     getFragmentManager().beginTransaction()
         .add(R.id.container, new MainActivityFragment())
         .commit();
+
+      mGoogleApiClient = new GoogleApiClient.Builder(this)
+              .addApi(Nearby.MESSAGES_API)
+              .addConnectionCallbacks(this)
+              .addOnConnectionFailedListener(this)
+              .build();
+
+      mGoogleApiClient.connect();
+
   }
+
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+        Nearby.Messages.getPermissionStatus(mGoogleApiClient).setResultCallback(
+                new ErrorCheckingCallback("getPermissionStatus", new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Nearby.Messages.subscribe(mGoogleApiClient, new MessageListener() {
+                            @Override
+                            public void onFound(Message message) {
+                                Toast.makeText(getApplicationContext(), message.getNamespace() + " " + message.getType() + " " + message.getContent(), Toast.LENGTH_SHORT).show();
+                            }
+                        }, Strategy.BLE_ONLY)
+                                .setResultCallback(new ErrorCheckingCallback("subscribe()"));
+                    }
+                }, MainActivity.this)
+        );
+
+
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+        Toast.makeText(getApplicationContext(), String.valueOf(i), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Toast.makeText(getApplicationContext(), connectionResult.getErrorMessage(), Toast.LENGTH_SHORT).show();
+    }
+
 
 }

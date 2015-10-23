@@ -12,10 +12,22 @@ android {
         versionName "1.0"
         multiDexEnabled = true
     }
+
+    signingConfigs {
+        release {
+            storeFile file("samplebeacon.jks")
+            storePassword "9t2MjXEynKNethtu"
+            keyAlias "samplebeacon"
+            keyPassword "5Gqx7pzMMj4S2Joo"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            debuggable true
         }
     }
 }
